@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
+import SocialLogin from '@/components/SocialLogin.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +26,8 @@ defineOptions({
 <template>
     <Head title="Register" />
 
+    <SocialLogin class="mb-6" />
+
     <Form
         v-bind="store.form()"
         :reset-on-success="['password', 'password_confirmation']"
@@ -45,6 +48,20 @@ defineOptions({
                     placeholder="Full name"
                 />
                 <InputError :message="errors.name" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="company_name">Company name</Label>
+                <Input
+                    id="company_name"
+                    type="text"
+                    required
+                    :tabindex="1"
+                    autocomplete="organization"
+                    name="company_name"
+                    placeholder="Your company or business name"
+                />
+                <InputError :message="errors.company_name" />
             </div>
 
             <div class="grid gap-2">
