@@ -157,55 +157,89 @@ const steps = [
     },
 ];
 
-const plans = [
-    {
-        name: 'Starter',
-        price: '$80',
-        period: '/month',
-        setup: 'once-off setup from $300',
-        description: 'A web chat agent for your website, trained on your business.',
-        features: [
-            'AI chat agent on your website',
-            'Trained on your prices & FAQs',
-            '500 conversations / month',
-            'Lead capture & email alerts',
-            'Monthly performance report',
-        ],
-        featured: false,
-    },
-    {
-        name: 'Standard',
-        price: '$150',
-        period: '/month',
-        setup: 'once-off setup from $500',
-        description: 'Your AI employee on WhatsApp — where your customers already are.',
-        features: [
-            'Everything in Starter',
-            'WhatsApp Business channel',
-            '1,500 conversations / month',
-            'Appointment booking',
-            'Human handoff & escalation',
-            'Knowledge base updates included',
-        ],
-        featured: true,
-    },
-    {
-        name: 'Pro',
-        price: '$250',
-        period: '/month',
-        setup: 'once-off setup from $800',
-        description: 'Multi-channel AI workforce with voice and integrations.',
-        features: [
-            'Everything in Standard',
-            'AI voice receptionist add-on',
-            'Facebook & Instagram channels',
-            '4,000 conversations / month',
-            'CRM & calendar integrations',
-            'Quarterly strategy review',
-        ],
-        featured: false,
-    },
-];
+const billing = ref<'monthly' | 'annual'>('monthly');
+
+const plans = computed(() => {
+    const annual = billing.value === 'annual';
+    const price = (monthly: number) => (annual ? Math.round(monthly * 0.9) : monthly);
+
+    return [
+        {
+            name: 'Free Trial',
+            tagline: 'Test-drive your AI employee',
+            price: 0,
+            period: 'for 14 days',
+            setup: 'No credit card required',
+            description:
+                'See it answer your real customer questions before you spend a cent.',
+            features: [
+                'AI chat agent on your website',
+                'Trained on your prices & FAQs',
+                '100 conversations included',
+                'Lead capture & email alerts',
+                'Setup done for you in 48 hours',
+            ],
+            cta: 'Start free trial',
+            featured: false,
+        },
+        {
+            name: 'Launch',
+            tagline: 'Website + AI in one subscription',
+            price: price(50),
+            period: '/month',
+            setup: annual ? 'billed annually · setup from $100' : 'setup from $100',
+            description:
+                'A professional website with an AI agent built in — perfect for getting online.',
+            features: [
+                'Professional website built for you',
+                'Hosting, SSL & maintenance included',
+                'AI chat agent on your site',
+                '300 conversations / month',
+                'Monthly performance report',
+            ],
+            cta: 'Get started',
+            featured: false,
+        },
+        {
+            name: 'Standard',
+            tagline: 'Your AI employee on WhatsApp',
+            price: price(150),
+            period: '/month',
+            setup: annual ? 'billed annually · setup from $500' : 'setup from $500',
+            description:
+                'Where your customers already are — answered every hour of every day.',
+            features: [
+                'Everything in Launch',
+                'WhatsApp Business channel',
+                '1,500 conversations / month',
+                'Appointment booking',
+                'Human handoff & escalation',
+                'Knowledge base updates included',
+            ],
+            cta: 'Get started',
+            featured: true,
+        },
+        {
+            name: 'Pro',
+            tagline: 'Multi-channel AI workforce',
+            price: price(250),
+            period: '/month',
+            setup: annual ? 'billed annually · setup from $800' : 'setup from $800',
+            description:
+                'Voice, social channels and deep integrations for growing teams.',
+            features: [
+                'Everything in Standard',
+                'AI voice receptionist add-on',
+                'Facebook & Instagram channels',
+                '4,000 conversations / month',
+                'CRM & calendar integrations',
+                'Quarterly strategy review',
+            ],
+            cta: 'Get started',
+            featured: false,
+        },
+    ];
+});
 
 const heroChips = computed(() => [
     {
@@ -252,11 +286,19 @@ const heroChips = computed(() => [
                 class="mx-auto flex h-28 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
             >
                 <a href="#" class="flex items-center">
-                    <img
-                        src="/images/logo-dark.png"
-                        alt="Grebles Solutions"
-                        class="h-24 w-auto object-contain"
-                    />
+                    <span class="relative inline-block">
+                        <img
+                            src="/images/logo-dark.png"
+                            alt="Grebles Solutions"
+                            class="h-24 w-auto object-contain"
+                        />
+                        <img
+                            src="/images/logo-dark.png"
+                            alt=""
+                            aria-hidden="true"
+                            class="logo-shine absolute inset-0 h-full w-full object-contain"
+                        />
+                    </span>
                 </a>
 
                 <div class="hidden items-center gap-8 md:flex">
@@ -361,6 +403,13 @@ const heroChips = computed(() => [
                     class="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
                 >
                     <CircuitBoard />
+                </div>
+
+                <!-- optical flare sweeping across the top -->
+                <div class="optical-flare" aria-hidden="true">
+                    <span class="flare-streak" />
+                    <span class="flare-core" />
+                    <span class="flare-ring" />
                 </div>
             </div>
 
@@ -731,17 +780,48 @@ const heroChips = computed(() => [
                         Less than a salary. Working every hour.
                     </h2>
                     <p class="mt-4 text-lg text-slate-400">
-                        Zimbabwe pricing shown — regional plans for South Africa and
-                        Botswana available. Custom automation, websites and governance
-                        quoted per project.
+                        Simple, transparent pricing in USD. Start free and scale as
+                        you grow — no hidden fees, no long-term lock-in. Custom
+                        automation, development and governance quoted per project.
                     </p>
                 </div>
 
-                <div class="mt-14 grid gap-6 lg:grid-cols-3">
+                <!-- billing toggle -->
+                <div class="mt-10 flex items-center justify-center gap-3">
+                    <button
+                        class="rounded-full px-5 py-2 text-sm font-medium transition"
+                        :class="
+                            billing === 'monthly'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-slate-400 hover:text-white'
+                        "
+                        @click="billing = 'monthly'"
+                    >
+                        Monthly
+                    </button>
+                    <button
+                        class="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition"
+                        :class="
+                            billing === 'annual'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-slate-400 hover:text-white'
+                        "
+                        @click="billing = 'annual'"
+                    >
+                        Annual
+                        <span
+                            class="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-400"
+                        >
+                            Save 10%
+                        </span>
+                    </button>
+                </div>
+
+                <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                     <div
                         v-for="plan in plans"
                         :key="plan.name"
-                        class="relative flex flex-col rounded-2xl border p-8"
+                        class="relative flex flex-col rounded-2xl border p-7"
                         :class="
                             plan.featured
                                 ? 'border-blue-500/50 bg-gradient-to-b from-blue-600/15 to-white/[0.03] shadow-2xl shadow-blue-600/10'
@@ -750,20 +830,25 @@ const heroChips = computed(() => [
                     >
                         <div
                             v-if="plan.featured"
-                            class="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1 text-xs font-semibold text-white"
+                            class="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1 text-xs font-semibold whitespace-nowrap text-white"
                         >
                             Most popular
                         </div>
                         <h3 class="text-lg font-semibold text-white">{{ plan.name }}</h3>
-                        <p class="mt-2 text-sm text-slate-400">{{ plan.description }}</p>
-                        <p class="mt-6">
-                            <span class="text-4xl font-bold text-white">{{
-                                plan.price
-                            }}</span>
-                            <span class="text-slate-400">{{ plan.period }}</span>
+                        <p class="mt-0.5 text-xs font-medium text-blue-400">
+                            {{ plan.tagline }}
                         </p>
-                        <p class="mt-1 text-xs text-slate-500">{{ plan.setup }}</p>
-                        <ul class="mt-7 flex-1 space-y-3">
+                        <p class="mt-3 min-h-[60px] text-sm leading-5 text-slate-400">
+                            {{ plan.description }}
+                        </p>
+                        <div class="mt-5 flex h-12 items-baseline gap-1.5">
+                            <span class="text-4xl font-bold text-white"
+                                >${{ plan.price }}</span
+                            >
+                            <span class="text-sm text-slate-400">{{ plan.period }}</span>
+                        </div>
+                        <p class="mt-1 min-h-4 text-xs text-slate-500">{{ plan.setup }}</p>
+                        <ul class="mt-6 flex-1 space-y-3">
                             <li
                                 v-for="feature in plan.features"
                                 :key="feature"
@@ -775,16 +860,61 @@ const heroChips = computed(() => [
                         </ul>
                         <Link
                             :href="register()"
-                            class="mt-8 rounded-xl px-5 py-3 text-center text-sm font-semibold transition"
+                            class="mt-7 rounded-xl px-5 py-3 text-center text-sm font-semibold transition"
                             :class="
                                 plan.featured
                                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 hover:bg-blue-500'
                                     : 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
                             "
                         >
-                            Get started
+                            {{ plan.cta }}
                         </Link>
                     </div>
+                </div>
+
+                <!-- trust row -->
+                <div
+                    class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-slate-400"
+                >
+                    <span class="inline-flex items-center gap-2">
+                        <ShieldCheck class="size-4 text-emerald-400" />
+                        14-day money-back guarantee
+                    </span>
+                    <span class="inline-flex items-center gap-2">
+                        <Check class="size-4 text-emerald-400" />
+                        No credit card for the trial
+                    </span>
+                    <span class="inline-flex items-center gap-2">
+                        <Check class="size-4 text-emerald-400" />
+                        Cancel anytime
+                    </span>
+                    <span class="inline-flex items-center gap-2">
+                        <Check class="size-4 text-emerald-400" />
+                        Prices in USD
+                    </span>
+                </div>
+
+                <!-- enterprise strip -->
+                <div
+                    class="mt-12 flex flex-col items-center justify-between gap-5 rounded-2xl border border-white/10 bg-white/[0.03] px-8 py-7 text-center sm:flex-row sm:text-left"
+                >
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">
+                            Need more than a plan?
+                        </h3>
+                        <p class="mt-1.5 max-w-xl text-sm text-slate-400">
+                            Voice receptionists, video avatars, process automation,
+                            custom development, on-premises deployment and COBIT
+                            governance — scoped and quoted for your business.
+                        </p>
+                    </div>
+                    <a
+                        href="#contact"
+                        class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-blue-400/30 bg-blue-500/10 px-6 py-3 text-sm font-semibold text-blue-300 transition hover:bg-blue-500/20"
+                    >
+                        Talk to us
+                        <ArrowRight class="size-4" />
+                    </a>
                 </div>
             </div>
         </section>
@@ -1080,16 +1210,116 @@ const heroChips = computed(() => [
     }
 }
 
+/* logo shine: a brightened copy of the logo revealed through a sweeping band,
+   so the glint only ever lights up the logo's own pixels */
+.logo-shine {
+    pointer-events: none;
+    filter: brightness(2.1) saturate(1.4)
+        drop-shadow(0 0 8px rgba(125, 211, 252, 0.55));
+    clip-path: polygon(-35% 0, -18% 0, -28% 100%, -45% 100%);
+    animation: logoShine 10s ease-in-out infinite;
+}
+
+@keyframes logoShine {
+    0% {
+        clip-path: polygon(-35% 0, -18% 0, -28% 100%, -45% 100%);
+    }
+    12% {
+        clip-path: polygon(125% 0, 142% 0, 132% 100%, 115% 100%);
+    }
+    100% {
+        clip-path: polygon(125% 0, 142% 0, 132% 100%, 115% 100%);
+    }
+}
+
+/* optical flare: anamorphic light sweep across the hero */
+.optical-flare {
+    position: absolute;
+    top: 90px;
+    left: 0;
+    width: 100%;
+    height: 0;
+    animation: flareTravel 16s ease-in-out infinite;
+}
+
+.flare-streak {
+    position: absolute;
+    top: 0;
+    left: -200px;
+    width: 400px;
+    height: 2px;
+    transform: translateY(-50%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(125, 211, 252, 0.9),
+        transparent
+    );
+    filter: blur(1px);
+}
+
+.flare-core {
+    position: absolute;
+    top: 0;
+    left: -18px;
+    width: 36px;
+    height: 36px;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(125, 211, 252, 0.5) 35%,
+        transparent 70%
+    );
+    filter: blur(2px);
+}
+
+.flare-ring {
+    position: absolute;
+    top: 0;
+    left: -45px;
+    width: 90px;
+    height: 90px;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    border: 1px solid rgba(125, 211, 252, 0.25);
+    background: radial-gradient(circle, transparent 55%, rgba(59, 130, 246, 0.12) 70%, transparent 75%);
+}
+
+@keyframes flareTravel {
+    0%,
+    8% {
+        transform: translateX(-5%);
+        opacity: 0;
+    }
+    14% {
+        opacity: 1;
+    }
+    44% {
+        opacity: 1;
+    }
+    52%,
+    100% {
+        transform: translateX(105%);
+        opacity: 0;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hero-g,
     .hero-glow,
     .orbit,
     .chip-ping,
-    .particle {
+    .particle,
+    .logo-shine,
+    .optical-flare {
         animation: none;
     }
     .particle,
-    .chip-ping {
+    .chip-ping,
+    .logo-shine,
+    .optical-flare {
         opacity: 0;
     }
 }
